@@ -104,7 +104,7 @@ wleData &lt;-<span class="st"> </span><span class="kw">read.csv</span>(trainFile
 inTrain &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(wleData$classe, <span class="dt">p =</span> <span class="fl">0.75</span>, <span class="dt">list =</span> <span class="ot">FALSE</span>)
 training &lt;-<span class="st"> </span>wleData[inTrain, ]
 testing &lt;-<span class="st"> </span>wleData[-inTrain, ]</code></pre>
-<p>Columns containing more than 80% NAs are removed from the dataset, as they contribute little and may affect the accuracy of our models. Morever many of these columns are window summaries and might not be helpful in the analysis.</p>
+<p>Columns containing more than 80% NAs are removed from the dataset, as they contribute little and may affect the accuracy of our models. Morever many of these columns are interval window summaries and might not be helpful in the analysis.</p>
 <pre class="sourceCode r"><code class="sourceCode r">nonNACols &lt;-<span class="st"> </span><span class="kw">colSums</span>(<span class="kw">is.na</span>(training)) &lt;<span class="st"> </span>(<span class="kw">nrow</span>(training) *<span class="st"> </span><span class="fl">0.8</span>)
 training &lt;-<span class="st"> </span>training[nonNACols]
 testing &lt;-<span class="st"> </span>testing[nonNACols]</code></pre>

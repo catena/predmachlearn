@@ -72,7 +72,7 @@ training <- wleData[inTrain, ]
 testing <- wleData[-inTrain, ]
 ```
 
-Columns containing more than 80% NAs are removed from the dataset, as they contribute little and may affect the accuracy of our models. Morever many of these columns are window summaries and might not be helpful in the analysis.
+Columns containing more than 80% NAs are removed from the dataset, as they contribute little and may affect the accuracy of our models. Morever many of these columns are interval window summaries and might not be helpful in the analysis.
 
 ```{r removeNA}
 nonNACols <- colSums(is.na(training)) < (nrow(training) * 0.8)
