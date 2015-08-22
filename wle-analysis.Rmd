@@ -12,6 +12,7 @@ output:
 ```{r echo=FALSE}
 library(knitr)
 opts_chunk$set(message = FALSE, warning = FALSE)
+options(scipen = 10, digits = 4)
 ```
 
 
@@ -114,7 +115,7 @@ modelFit <- train(classe ~., data = training, method = "rf", trControl = trainCo
 
 ### Recognition performance
 
-OOS error is expected to be around `r round(1 - mean(modelFit$resample$Accuracy), 2)`%. For random forests, the out-of-bag(OOB) error estimate gives an unbiased estimate of the test set error.
+OOS error is expected to be around `r round(100 * (1 - mean(modelFit$resample$Accuracy)), 2)`%. For random forests, the out-of-bag(OOB) error estimate gives an unbiased estimate of the test set error.
 
 ```{r performance}
 # cross validation results, wrt folds
@@ -137,7 +138,7 @@ cfmatrix <- confusionMatrix(predictions, testing$classe)
 cfmatrix
 ```
 
-Since we have an overall OOS error rate of `r round(1 - cfmatrix$overall[1], 2)`% using random forests which is fairly sufficient, no other methods are investigated.
+Since we have an overall OOS error rate of `r round(100 * (1 - cfmatrix$overall[1]), 2)`% using random forests which is fairly sufficient, no other methods are investigated.
 
 
 ***

@@ -125,26 +125,26 @@ testing &lt;-<span class="st"> </span>testing[!nsv$nzv]</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">modelFit &lt;-<span class="st"> </span><span class="kw">train</span>(classe ~., <span class="dt">data =</span> training, <span class="dt">method =</span> <span class="st">&quot;rf&quot;</span>, <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;cv&quot;</span>, <span class="dt">number =</span> <span class="dv">10</span>, <span class="dt">summaryFunction =</span> multiClassSummary, <span class="dt">classProbs =</span> <span class="ot">TRUE</span>), <span class="dt">ntree =</span> <span class="dv">10</span>, <span class="dt">metric =</span> <span class="st">&quot;ROC&quot;</span>)</code></pre>
 <div id="recognition-performance" class="section level3">
 <h3>Recognition performance</h3>
-<p>OOS error is expected to be around 0.01%. For random forests, the out-of-bag(OOB) error estimate gives an unbiased estimate of the test set error.</p>
+<p>OOS error is expected to be around 0.6%. For random forests, the out-of-bag(OOB) error estimate gives an unbiased estimate of the test set error.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># cross validation results, wrt folds</span>
 modelFit$resample[<span class="kw">c</span>(<span class="dv">15</span>, <span class="dv">1</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">13</span>)]</code></pre>
-<pre><code>##    Resample  Accuracy Sensitivity Specificity       ROC
-## 1    Fold02 0.9945652   0.9937722   0.9986208 0.9999808
-## 2    Fold01 0.9918534   0.9909940   0.9979023 0.9994841
-## 3    Fold04 0.9972826   0.9969073   0.9993146 0.9999953
-## 4    Fold03 0.9938900   0.9929656   0.9985221 0.9999588
-## 5    Fold06 0.9932065   0.9926250   0.9982417 0.9993717
-## 6    Fold05 0.9945689   0.9942370   0.9986028 0.9999620
-## 7    Fold08 0.9952413   0.9951940   0.9987929 0.9999252
-## 8    Fold07 0.9938900   0.9930590   0.9984614 0.9998706
-## 9    Fold10 0.9897890   0.9888192   0.9974097 0.9998477
-## 10   Fold09 0.9959184   0.9955054   0.9989882 0.9999822</code></pre>
+<pre><code>##    Resample Accuracy Sensitivity Specificity    ROC
+## 1    Fold02   0.9946      0.9938      0.9986 1.0000
+## 2    Fold01   0.9919      0.9910      0.9979 0.9995
+## 3    Fold04   0.9973      0.9969      0.9993 1.0000
+## 4    Fold03   0.9939      0.9930      0.9985 1.0000
+## 5    Fold06   0.9932      0.9926      0.9982 0.9994
+## 6    Fold05   0.9946      0.9942      0.9986 1.0000
+## 7    Fold08   0.9952      0.9952      0.9988 0.9999
+## 8    Fold07   0.9939      0.9931      0.9985 0.9999
+## 9    Fold10   0.9898      0.9888      0.9974 0.9998
+## 10   Fold09   0.9959      0.9955      0.9990 1.0000</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># cross validation results, wrt mtry</span>
 modelFit$results[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">14</span>)]</code></pre>
-<pre><code>##   mtry  Accuracy Sensitivity Specificity       ROC
-## 1    2 0.9823360   0.9803598   0.9955466 0.9991515
-## 2   30 0.9940205   0.9934079   0.9984856 0.9998379
-## 3   58 0.9895374   0.9885294   0.9973722 0.9992954</code></pre>
+<pre><code>##   mtry Accuracy Sensitivity Specificity    ROC
+## 1    2   0.9823      0.9804      0.9955 0.9992
+## 2   30   0.9940      0.9934      0.9985 0.9998
+## 3   58   0.9895      0.9885      0.9974 0.9993</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># optimal model and OOB error rate</span>
 modelFit$finalModel</code></pre>
 <pre><code>## 
@@ -157,11 +157,11 @@ modelFit$finalModel</code></pre>
 ##         OOB estimate of  error rate: 1.97%
 ## Confusion matrix:
 ##      A    B    C    D    E class.error
-## A 4105   13    0    4    3 0.004848485
-## B   36 2752   19    8    7 0.024805103
-## C    4   40 2467   15    6 0.025671406
-## D    8   19   40 2313    6 0.030595138
-## E    2   22    9   26 2631 0.021933086</code></pre>
+## A 4105   13    0    4    3    0.004848
+## B   36 2752   19    8    7    0.024805
+## C    4   40 2467   15    6    0.025671
+## D    8   19   40 2313    6    0.030595
+## E    2   22    9   26 2631    0.021933</code></pre>
 </div>
 <div id="out-of-sample-error" class="section level3">
 <h3>Out of sample error</h3>
@@ -180,27 +180,27 @@ cfmatrix</code></pre>
 ##          E    0    0    0    1  897
 ## 
 ## Overall Statistics
-##                                          
-##                Accuracy : 0.9941         
-##                  95% CI : (0.9915, 0.996)
-##     No Information Rate : 0.2845         
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
-##                                          
-##                   Kappa : 0.9925         
-##  Mcnemar's Test P-Value : NA             
+##                                         
+##                Accuracy : 0.994         
+##                  95% CI : (0.992, 0.996)
+##     No Information Rate : 0.284         
+##     P-Value [Acc &gt; NIR] : &lt;2e-16        
+##                                         
+##                   Kappa : 0.993         
+##  Mcnemar's Test P-Value : NA            
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9993   0.9947   0.9965   0.9801   0.9956
-## Specificity            0.9983   0.9990   0.9963   0.9993   0.9998
-## Pos Pred Value         0.9957   0.9958   0.9827   0.9962   0.9989
-## Neg Pred Value         0.9997   0.9987   0.9993   0.9961   0.9990
-## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2843   0.1925   0.1737   0.1607   0.1829
-## Detection Prevalence   0.2855   0.1933   0.1768   0.1613   0.1831
-## Balanced Accuracy      0.9988   0.9969   0.9964   0.9897   0.9977</code></pre>
-<p>Since we have an overall OOS error rate of 0.01% using random forests which is fairly sufficient, no other methods are investigated.</p>
+## Sensitivity             0.999    0.995    0.996    0.980    0.996
+## Specificity             0.998    0.999    0.996    0.999    1.000
+## Pos Pred Value          0.996    0.996    0.983    0.996    0.999
+## Neg Pred Value          1.000    0.999    0.999    0.996    0.999
+## Prevalence              0.284    0.194    0.174    0.164    0.184
+## Detection Rate          0.284    0.192    0.174    0.161    0.183
+## Detection Prevalence    0.285    0.193    0.177    0.161    0.183
+## Balanced Accuracy       0.999    0.997    0.996    0.990    0.998</code></pre>
+<p>Since we have an overall OOS error rate of 0.59% using random forests which is fairly sufficient, no other methods are investigated.</p>
 <hr />
 </div>
 </div>
