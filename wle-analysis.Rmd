@@ -1,0 +1,174 @@
+---
+title: "Qualitative Activity Recognition of Weight Lifting Exercises"
+author: "Vishnu"
+date: "August 21, 2015"
+output: 
+  html_document:
+    css: wle-analysis.css
+    highlight: monochrome
+    theme: journal
+---
+
+```{r echo=FALSE}
+library(knitr)
+opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
+```{r init,include=FALSE}
+library(ggplot2)
+library(caret)
+library(randomForest)
+
+source("multiclass.R")
+set.seed(123456789)
+```
+
+Introduction
+===============
+
+Research on activity recognition has traditionally focused on discriminating between different activities, i.e. to predict "which" activity was performed at a specific point in time. The quality of executing an activity, the "how (well)", has only received little attention so far, even though it potentially provides useful information for a large variety of applications. In this work, we assess whether the quality of execution and mistakes could be detected and illustrate our approach for the same. 
+
+
+***
+
+
+Experiment Design
+====================
+
+Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions:  
+
+* exactly according to the specification (Class A), 
+* throwing the elbows to the front (Class B), 
+* lifting the dumbbell only halfway (Class C), 
+* lowering the dumbbell only halfway (Class D),
+* throwing the hips to the front (Class E).  
+
+Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes. Sensors were mounted on users’ glove, armband, lumbar belt and dumbbell.
+
+
+***
+
+
+Features
+===========
+
+Raw readings were collected from accelerometers, gyroscopes and magnetometers for the Euler angles (raw, pitch, yaw) using a sliding window approach with different lengths from 0.5 second to 2.5 seconds. For each of the Euler angles eight features were calculated: mean, variance, standard deviation, max, min, amplitude, kurtosis and skewness, generating a total of 96 derived feature sets. 
+
+
+***
+
+
+Data Processing
+==================
+
+Data is split into training and test data in the proportion 75/25, with the latter being used to measure out of sample error.  
+
+```{r readData,cache=TRUE}
+trainFile <- "data/pml-training.csv"
+wleData <- read.csv(trainFile, na.strings = c("NA", "#DIV/0!"))
+inTrain <- createDataPartition(wleData$classe, p = 0.75, list = FALSE)
+training <- wleData[inTrain, ]
+testing <- wleData[-inTrain, ]
+```
+
+Columns containing more than 80% NAs are removed from the dataset, as they contribute little and may affect the accuracy of our models. Morever many of these columns are window summaries and might not be helpful in the analysis.
+
+```{r removeNA}
+nonNACols <- colSums(is.na(training)) < (nrow(training) * 0.8)
+training <- training[nonNACols]
+testing <- testing[nonNACols]
+```
+
+The temporal information in records might increase variance and hence they are removed from the dataset to prevent overfitting. This includes the timestamps, row number and *new_window* variables.
+
+```{r removeTemporalInfo}
+timecols <- c("X", "raw_timestamp_part_1", "raw_timestamp_part_2", "cvtd_timestamp", "new_window")
+training[timecols] <- list(NULL)
+testing[timecols] <- list(NULL)
+```
+
+Since most of the features are derived covariates, features with low variance are removed. (Note that no such covariates were found)
+
+```{r removeZeroVar}
+nsv <- nearZeroVar(training, saveMetrics = T)
+training <- training[!nsv$nzv]
+testing <- testing[!nsv$nzv]
+```
+
+
+***
+
+
+Training model
+=================
+
+[Velloso et al.][1] describes that "because of the characteristic noise in the sensor data", a Random Forest model was fitted to the data, obtaining accuracy > 98%. Hence as our first attempt, we follow a similar approach using the random forest as our model.  
+
+With the default parameters, the implementation was too slow on the available hardware and so a less computationally demanding set of parameters were selected. We used 10 random forests and each forest was implemented with 10 trees. The area under the ROC curve is used to select the optimal model. The classifier was tested with 10-fold cross-validation.
+
+```{r train,cache=TRUE}
+modelFit <- train(classe ~., data = training, method = "rf", trControl = trainControl(method = "cv", number = 10, summaryFunction = multiClassSummary, classProbs = TRUE), ntree = 10, metric = "ROC")
+```
+
+
+### Recognition performance
+
+OOS error is expected to be around `r round(1 - mean(modelFit$resample$Accuracy), 2)`%. For random forests, the out-of-bag(OOB) error estimate gives an unbiased estimate of the test set error.
+
+```{r performance}
+# cross validation results, wrt folds
+modelFit$resample[c(15, 1, 7, 8, 13)]
+
+# cross validation results, wrt mtry
+modelFit$results[c(1, 2, 8, 9, 14)]
+
+# optimal model and OOB error rate
+modelFit$finalModel
+```
+
+
+### Out of sample error
+
+```{r oosError}
+# confusion matrix and OOS error rate
+predictions <- predict(modelFit, newdata = testing)
+cfmatrix <- confusionMatrix(predictions, testing$classe)
+cfmatrix
+```
+
+Since we have an overall OOS error rate of `r round(1 - cfmatrix$overall[1], 2)`% using random forests which is fairly sufficient, no other methods are investigated.
+
+
+***
+
+
+Conclusion
+=============
+
+Our results point out that it is possible to detect mistakes by classification, although this approach is hardly scalable.
+
+
+***
+
+
+References
+=============
+
+* Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.  
+
+* [Download the WLE dataset here](http://groupware.les.inf.puc-rio.br/static/WLE/WearableComputing_weight_lifting_exercises_biceps_curl_variations.csv)
+
+* [Leo Breiman and Adele Cutler, Random Forests](http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm)
+
+
+[1]: http://groupware.les.inf.puc-rio.br/public/papers/2013.Velloso.QAR-WLE.pdf
+
+
+
+
+
+
+
+
+

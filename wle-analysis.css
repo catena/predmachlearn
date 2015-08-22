@@ -1,0 +1,13 @@
+
+/* Remove underlines in monochrome syntax highligher */
+code > span.dt {
+    text-decoration: none;
+}
+
+pre code {
+    font-size: 12px;
+}
+
+body {
+    color: #444444;
+}
